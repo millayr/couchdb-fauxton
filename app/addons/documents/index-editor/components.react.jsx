@@ -274,7 +274,7 @@ var EditorController = React.createClass({
   saveView: function (e) {
     e.preventDefault();
 
-    if (!this.refs.designDocSelector.validate()) {
+    if (this.state.isNewView && !this.refs.designDocSelector.validate()) {
       return;
     }
 
@@ -310,15 +310,13 @@ var EditorController = React.createClass({
       );
     }
 
-    var pageHeader = (this.state.isNewView) ? 'New View' : 'Edit View';
-    var btnLabel = (this.state.isNewView) ? 'Create Document and Build Index' : 'Save Document and Build Index';
-
+    var pageHeader = (this.state.isNewView) ? 'New View' : 'Edit ' + this.state.designDocId + '/_view/' + this.state.viewName;
+    var btnLabel = (this.state.isNewView) ? 'Create Document and Build Index' : 'Save Edits and Rebuild Index';
     var cancelLink = '#' + FauxtonAPI.urls('view', 'showView', this.state.database.id, this.state.designDocId, this.state.viewName);
-    return (
-      <div className="define-view">
-        <form className="form-horizontal view-query-save" onSubmit={this.saveView}>
-          <h3 className="simple-header">{pageHeader}</h3>
 
+    var defineNameSection;
+    if (this.state.isNewView) {
+      defineNameSection = <div>
           <div className="new-ddoc-section">
             <DesignDocSelector
               ref="designDocSelector"
@@ -348,6 +346,16 @@ var EditorController = React.createClass({
               onChange={this.viewChange}
               placeholder="Index name" />
           </div>
+        </div>;
+    }
+
+    return (
+      <div className="define-view">
+        <form className="form-horizontal view-query-save" onSubmit={this.saveView}>
+          <h3 className="simple-header">{pageHeader}</h3>
+
+          {defineNameSection}
+
           <CodeEditorPanel
             id={'map-function'}
             ref="mapEditor"

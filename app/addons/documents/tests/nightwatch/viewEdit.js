@@ -14,40 +14,6 @@
 
 module.exports = {
 
-  'Edits a design doc - renames index': function (client) {
-    var waitTime = client.globals.maxWaitTime,
-        newDatabaseName = client.globals.testDatabaseName,
-        baseUrl = client.globals.test_settings.launch_url;
-
-    client
-      .deleteDatabase(newDatabaseName)
-      .createDatabase(newDatabaseName)
-      .populateDatabase(newDatabaseName)
-      .loginToGUI()
-      .url(baseUrl + '/#/database/' + newDatabaseName + '/_design/testdesigndoc/_view/stubview/edit')
-      .waitForElementPresent('.index-cancel-link', waitTime, true)
-      .waitForElementNotPresent('.loading-lines', waitTime, true)
-      .waitForElementVisible('#index-name', waitTime, true)
-      .waitForElementPresent('.faux-header__doc-header-title', waitTime, false)
-      .waitForAttribute('.faux-header__doc-header-title', 'textContent', function (docContents) {
-        var regExp = new RegExp(newDatabaseName);
-        return regExp.test(docContents);
-      })
-
-      .waitForAttribute('#index-name', 'value', function (val) {
-        return val === 'stubview';
-      })
-      .clearValue('#index-name')
-      .setValue('#index-name', 'hasenindex5000')
-
-      .execute('$("#save-view")[0].scrollIntoView();')
-      .clickWhenVisible('#save-view')
-
-      // confirm the new index name is present
-      .waitForElementVisible('#testdesigndoc_hasenindex5000', waitTime, false)
-    .end();
-  },
-
   'Edits a design doc': function (client) {
     /*jshint multistr: true */
     var waitTime = client.globals.maxWaitTime,
@@ -65,15 +31,15 @@ module.exports = {
       .url(baseUrl + '/#/database/' + newDatabaseName + '/_design/testdesigndoc/_view/stubview/edit')
       .waitForElementPresent('.index-cancel-link', waitTime, true)
       .waitForElementNotPresent('.loading-lines', waitTime, true)
-      .waitForElementVisible('#index-name', waitTime, true)
       .waitForElementPresent('.faux-header__doc-header-title', waitTime, false)
       .waitForAttribute('.faux-header__doc-header-title', 'textContent', function (docContents) {
         var regExp = new RegExp(newDatabaseName);
         return regExp.test(docContents);
       })
-
-      .waitForAttribute('#index-name', 'value', function (val) {
-        return val === 'stubview';
+      .waitForElementPresent('.simple-header', waitTime, false)
+      .waitForAttribute('.simple-header', 'textContent', function (headerContents) {
+        var regExp = new RegExp('Edit _design/testdesigndoc/_view/stubview');
+        return regExp.test(headerContents);
       })
 
       .execute('\
@@ -175,6 +141,11 @@ module.exports = {
         var regExp = new RegExp(newDatabaseName);
         return regExp.test(docContents);
       })
+      .waitForElementPresent('.simple-header', waitTime, false)
+      .waitForAttribute('.simple-header', 'textContent', function (headerContents) {
+        var regExp = new RegExp('Edit _design/view1-name/_view/view1');
+        return regExp.test(headerContents);
+      })
 
       .execute(function () {
         var editor = window.ace.edit("map-function");
@@ -182,57 +153,6 @@ module.exports = {
       }, [], function (resp) {
         this.assert.equal(resp.value, 'function (doc) { emit(doc._id, 100); }');
       })
-      .end();
-  },
-
-  'Editing a view and putting it into a new design doc removes it from the old design doc': function (client) {
-    var waitTime = client.globals.maxWaitTime,
-      newDatabaseName = client.globals.testDatabaseName,
-      baseUrl = client.globals.test_settings.launch_url;
-
-    client
-      .deleteDatabase(newDatabaseName)
-      .createDatabase(newDatabaseName)
-      .populateDatabase(newDatabaseName)
-      .loginToGUI()
-      .url(baseUrl + '/#/database/' + newDatabaseName + '/_design/testdesigndoc/_view/stubview')
-      .waitForElementPresent('.prettyprint', waitTime, false)
-
-      // confirm the sidebar shows the testdesigndoc design doc
-      .waitForElementVisible('#testdesigndoc', waitTime, true)
-
-      .waitForElementPresent('.faux-header__doc-header-title', waitTime, false)
-      .waitForAttribute('.faux-header__doc-header-title', 'textContent', function (docContents) {
-        var regExp = new RegExp(newDatabaseName);
-        return regExp.test(docContents);
-      })
-
-      // now edit the view and move it into a brand new design doc
-      .url(baseUrl + '/#/database/' + newDatabaseName + '/_design/testdesigndoc/_view/stubview/edit')
-      .waitForElementPresent('.faux-header__doc-header-title', waitTime, false)
-      .waitForAttribute('.faux-header__doc-header-title', 'textContent', function (docContents) {
-        var regExp = new RegExp(newDatabaseName);
-        return regExp.test(docContents);
-      })
-
-      .waitForElementPresent('.index-cancel-link', waitTime, true)
-      .waitForElementVisible('select#ddoc', waitTime, true)
-      .waitForElementNotPresent('.loading-lines', waitTime, true)
-
-      .setValue('select#ddoc', 'new-doc')
-
-      // needed to get React to update + show the new design doc field
-      .click('body')
-
-      .waitForElementPresent('#new-ddoc', waitTime, true)
-      .execute('$("#new-ddoc")[0].scrollIntoView();')
-      .setValue('#new-ddoc', 'brand-new-ddoc')
-      .execute('$("#save-view")[0].scrollIntoView();')
-      .clickWhenVisible('#save-view')
-
-      // now wait for the old design doc to be gone, and the new one to have shown up
-      .waitForElementNotPresent('#testdesigndoc', waitTime, true)
-      .waitForElementPresent('#brand-new-ddoc', waitTime, true)
       .end();
   }
 
