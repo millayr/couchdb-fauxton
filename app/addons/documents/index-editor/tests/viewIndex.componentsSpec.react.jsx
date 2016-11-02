@@ -241,33 +241,3 @@ describe('DesignDocSelector component', function () {
     assert.equal($(ReactDOM.findDOMNode(selectorEl)).find('.help-link').attr('href'), docLink);
   });
 });
-
-/*
-describe('Editor', function () {
-  var container, editorEl, sandbox;
-
-  beforeEach(function () {
-    container = document.createElement('div');
-    $('body').append('<div id="map-function"></div>');
-    $('body').append('<div id="editor"></div>');
-    editorEl = TestUtils.renderIntoDocument(<Views.EditorController />, container);
-    sandbox = sinon.sandbox.create();
-  });
-
-  afterEach(function () {
-    ReactDOM.unmountComponentAtNode(container);
-    sandbox.restore();
-  });
-
-  it('calls changeViewName on view name change', function () {
-    var viewName = 'new-name';
-    var spy = sandbox.spy(Actions, 'changeViewName');
-    var el = $(ReactDOM.findDOMNode(editorEl)).find('#index-name')[0];
-    TestUtils.Simulate.change(el, {
-      target: {
-        value: viewName
-      }
-    });
-    assert.ok(spy.calledWith(viewName));
-  });
-});*/
